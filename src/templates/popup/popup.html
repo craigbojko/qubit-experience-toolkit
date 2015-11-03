@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Deliver Toolkit Popup</title>
+    <style>
+      body {
+        min-width: 120px;
+        overflow: hidden;
+      }
+
+      p{
+        margin-right: 10px;
+      }
+
+      span.status{
+        font-size: 12pt;
+        color: black;
+        cursor: pointer;
+      }
+      span.status.enabled{
+        color: green;
+      }
+    </style>
+
+    <!--
+      - JavaScript and HTML must be in separate files: see our Content Security
+      - Policy documentation[1] for details and explanation.
+      -
+      - [1]: http://developer.chrome.com/extensions/contentSecurityPolicy.html
+     -->
+    <script src="/js/popup/popup.min.js" defer></script>
+
+  </head>
+  <body>
+    <p>Deliver Toolkit: <span class='status'></span></p>
+  </body>
+</html>
+
