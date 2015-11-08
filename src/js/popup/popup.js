@@ -1,8 +1,5 @@
-// TODO - LS needs moving to background page for persistence
-
-
 var $ = require('jquery');
-var storage = require('../common/toolkit_storage');
+var storage = require('../common/storage');
 
 (function($, c){
 

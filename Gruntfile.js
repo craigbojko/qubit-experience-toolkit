@@ -11,7 +11,7 @@ module.exports = function(grunt) {
       }
     },
     watch: {
-      files: ['src/**/*.js'],
+      files: ['src/**/*.js', 'src/css/**/*.*'],
       tasks: ['build']//, 'chrome-ext-reload', 'reload']
     },
     less : {
@@ -20,7 +20,7 @@ module.exports = function(grunt) {
           paths : ['src/css/']
         },
         files : {
-          "build/css/content.css" : "src/css/*.*"
+          'build/css/content.css' : 'src/css/main.less'
         }
       },
       // production : {
@@ -41,6 +41,7 @@ module.exports = function(grunt) {
           browserifyOptions: {
             debug: true
           },
+          transform: ['node-underscorify'],
           aliasMappings: {
             cwd: 'src',
             src: ['js/content/**/*.js']
@@ -52,10 +53,6 @@ module.exports = function(grunt) {
             // 'src/js/content/test.js'
           ]
         }
-        // src: 'src/js/deliver_toolkit.js',
-        // dest: 'build/js/deliver_toolkit.min.js'
-        // src: 'src/js/content/main.js',
-        // dest: 'debug/js/main.min.js'
       },
       popup: {
         options: {

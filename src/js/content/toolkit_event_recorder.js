@@ -1,5 +1,6 @@
 var $ = require('jquery');
-var storage = require('../common/toolkit_storage');
+var storage = require('../common/storage');
+var splitURL = require('../common/split_url');
 
 var event_recorder = {
 
@@ -63,7 +64,7 @@ var event_recorder = {
   },
 
   pongListener : function(){
-    deliverToolkit.chromeInstance.runtime.onMessage.addListener(
+    this.toolkit.chromeInstance.runtime.onMessage.addListener(
       function(request, sender, sendResponse) {
         if (request.type == "pong_event"){
           var uv_event = false;
@@ -81,11 +82,11 @@ var event_recorder = {
             }
           }
 
-          if( deliverToolkit.modules.event_recorder.enableLogging === true ){
+          if( this.enableLogging === true ){
             console.group("PONG EVENT %s", (uv_event) ? ": UV EVENT" : "");
             console.log("REQUEST RAW: ", request);
 
-            var url = deliverToolkit.splitURL(decodeURIComponent(request.data.url));
+            var url = splitURL(decodeURIComponent(request.data.url));
             //console.log(url);
             //console.table([url]);
 
@@ -107,7 +108,7 @@ var event_recorder = {
 
           sendResponse({logged: true});
         }
-      }
+      }.bind(this)
     );
   }
 

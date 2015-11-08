@@ -1,0 +1,84 @@
+/* Experiment Preview Styles */
+
+#DeliverPreviewer{
+  height: auto;
+  overflow: hidden;
+
+  .snippetCont{
+
+     > span{
+      font-size: 14px;
+    }
+
+    .activator{
+      display: none;
+      width: 100%;
+      height: 60px;
+      margin-bottom: -11px;
+      border-top: solid 1px #ccc;
+      background-color: #333;
+    }
+
+    .activePreviews{
+      display: none;
+
+      &.active{
+        position: relative;
+        display: inline-block;
+        width: 250px;
+        margin: 0;
+        line-height: 30px;
+        text-align: center;
+        background-color: #333;
+      }
+    }
+
+    p.activate{
+      position: absolute;
+      left: 0;
+      width: 50%;
+      margin: 0;
+      padding: 0;
+      line-height: 30px;
+      text-align: center;
+      color: #FFFFFF !important;
+    }
+
+    p.cancel{
+      position: absolute;
+      right: 0;
+      margin: 0;
+      padding: 0 15px;
+      line-height: 30px;
+      color: red;
+    }
+
+    p.clearPreview{
+      position: absolute;
+      top: 30px;
+      left: 0px;
+      width: 100%;
+      height: 30px;
+      margin: 0;
+      line-height: 28px;
+      color: #FFFFFF !important;
+    }
+
+    p.activate:hover,
+    p.cancel:hover,
+    p.clearPreview:hover{
+      background-color: #666666;
+    }
+  }
+
+  &.active {
+    .spippetCont{
+      /*height: 60px !important;*/
+    }
+    .activator{
+      position: relative;
+      display: inline-block;
+    }
+  }
+
+} // END DeliverPreviewer

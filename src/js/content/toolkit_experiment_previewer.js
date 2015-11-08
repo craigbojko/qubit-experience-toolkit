@@ -33,10 +33,7 @@ var experiment_previewer = {
                       "</div>",
                     "</div>"].join(''));
 
-    var $metaCont = this.toolkit.$el.find('#DeliverToolbarLayerPreviews');
-    $metaCont.append($html);
-    // $metaCont.animate({height : '30%'});
-    // this.toolkit.$el.find('#DeliverToolbarLayers').height('64%');
+    this.toolkit.$el.find('#DeliverToolbarLayerPreviews').append($html);
     return this.toolkit.$el.find('#DeliverToolbarMeta');
   },
 
@@ -193,8 +190,12 @@ var experiment_previewer = {
 
     $previewer.click(function(e){
       var $this = $(this);
+      var parent = _self.toolkit.$el.find('#DeliverToolbarLayerPreviews');
+      _self.toolkit.$el.find('#DeliverPreviewer .activate span').html('0 Tests');
 
       $this.toggleClass('active');
+      parent.toggleClass('active');
+
       if( $this.hasClass('active') ){
         _self.renderExperiments();
       }
@@ -222,7 +223,7 @@ var experiment_previewer = {
     $activator.find('.cancel').click(function(e){
       e.stopPropagation();
       _self.toolkit.resetLayers();
-      _self.toolkit.$el.find('#DeliverPreviewer').find('.activate span').html('0 Tests');
+      _self.toolkit.$el.find('#DeliverPreviewer .activate span').html('0 Tests');
     });
   }
 

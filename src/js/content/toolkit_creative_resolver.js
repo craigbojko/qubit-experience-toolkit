@@ -18,69 +18,77 @@ var creative_resolver = {
 
   getExperimentAndCreative : function(e_id, callback){
     Promise.all([
-      deliverToolkit.modules.creative_resolver.requestExperimentDataById(e_id, callback),
-      deliverToolkit.modules.creative_resolver.requestCreativesByEperimentId(e_id, callback)
-    ]).then(function(data){
-      deliverToolkit.modules.creative_resolver.returnAllData(data, e_id, callback);
-    }, function(){
-      deliverToolkit.modules.creative_resolver.returnError(e, e_id, callback);
-    });
+      this.requestExperimentDataById(e_id, callback),
+      this.requestCreativesByEperimentId(e_id, callback)
+    ])
+      .then(
+        function(data){
+          this.returnAllData(data, e_id, callback);
+        }.bind(this),
+        function(e){
+          this.returnError(e, e_id, callback);
+        }.bind(this)
+      );
   },
 
   getExperiment : function(e_id, callback){
     if( this.experimentData && this.experimentData[e_id] ){
-      deliverToolkit.modules.creative_resolver.returnCreativeData(this.experimentData[e_id], e_id, callback);
+      this.returnCreativeData(this.experimentData[e_id], e_id, callback);
       return this.experimentData.e_id;
     }
     else{
       return this.requestExperimentDataById(e_id)
-        .then(function(data){
-          deliverToolkit.modules.creative_resolver.returnExperimentData(data, e_id, callback);
-        },
-        function(e){
-          deliverToolkit.modules.creative_resolver.returnError(e, e_id, callback);
-        });
+        .then(
+          function(data){
+            this.returnExperimentData(data, e_id, callback);
+          }.bind(this),
+          function(e){
+            this.returnError(e, e_id, callback);
+          }.bind(this)
+        );
     }
   },
 
   getCreative : function(e_id, callback){
     if( this.creativeData && this.creativeData[e_id] ){
-      deliverToolkit.modules.creative_resolver.returnCreativeData(this.creativeData[e_id], e_id, callback);
+      this.returnCreativeData(this.creativeData[e_id], e_id, callback);
       return this.creativeData.e_id;
     }
     else{
       return this.requestCreativesByEperimentId(e_id)
-        .then(function(data){
-          deliverToolkit.modules.creative_resolver.returnCreativeData(data, e_id, callback);
-        },
-        function(e){
-          deliverToolkit.modules.creative_resolver.returnError(e, e_id, callback);
-        });
+        .then(
+          function(data){
+            this.returnCreativeData(data, e_id, callback);
+          }.bind(this),
+          function(e){
+            this.returnError(e, e_id, callback);
+          }.bind(this)
+        );
     }
   },
 
   requestCreativesByEperimentId : function(e_id){
     return new Promise(function(resolve, reject){
       $.ajax({
-        url:"https://dashboard.qubitproducts.com/p/"+deliverToolkit.clientId+"/smart_serve/experiments/"+e_id+"/recent_iterations/draft/variations"
+        url:"https://dashboard.qubitproducts.com/p/"+this.toolkit.clientId+"/smart_serve/experiments/"+e_id+"/recent_iterations/draft/variations"
       }).done(function(data){
         resolve(data);
       }).fail(function(error){
         reject(error);
       });
-    });
+    }.bind(this));
   },
 
   requestExperimentDataById : function(e_id){
     return new Promise(function(resolve, reject){
       $.ajax({
-        url:"https://dashboard.qubitproducts.com/p/"+deliverToolkit.clientId+"/smart_serve/experiments/"+e_id
+        url:"https://dashboard.qubitproducts.com/p/"+this.toolkit.clientId+"/smart_serve/experiments/"+e_id
       }).done(function(data){
         resolve(data);
       }).fail(function(error){
         reject(error);
       });
-    });
+    }.bind(this));
   },
 
   returnAllData : function(data, experimentId, callback){

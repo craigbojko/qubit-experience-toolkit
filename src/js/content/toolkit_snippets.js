@@ -39,7 +39,7 @@ var toolkit_snippets = {
     var $html = $([
       "<div id='DeliverSnippets'>",
         "<div id='DeliverSnippetsWrapper'></div>",
-      "</div>" // END main wrapper
+      "</div>"
     ].join(""));
 
     var $htmlWrap = $html.find('#DeliverSnippetsWrapper');

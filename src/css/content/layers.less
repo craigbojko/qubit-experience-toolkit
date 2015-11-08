@@ -1,0 +1,93 @@
+/* Active Layer Styles */
+
+#DeliverToolbarLayers{
+  height: 0%;
+  display: none;
+  opacity: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  transition: all 0.3s ease-in-out;
+
+  &.open{
+    display: block;
+    opacity: 1;
+    height: 100% !important;
+    max-height: 370px;
+  }
+
+  .DT-Layer{
+    position: relative;
+    height: 25px;
+    min-height: 20px;
+    line-height: 20px;
+    font-size: 14px;
+    margin-bottom: 3px;
+    padding: 3px 0 3px;
+    color: white;
+    background-color: transparent !important;
+    overflow: hidden;
+    opacity: 1;
+    cursor: pointer;
+
+    &.open{
+      background-color: grey !important;
+    }
+
+    input[type='checkbox']{
+      position: absolute;
+      display: inline-block;
+      left: 0;
+      margin: 7px;
+      width: initial !important;
+      height: initial !important;
+      opacity: 1;
+    }
+
+    .indicator{
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      top: 4px;
+      left: 2px;
+      margin: 8px;
+      padding: 0px;
+      border-radius: 50%;
+      background: #ccc;
+
+      &.active{
+        background: #6FA858;
+      }
+      &.selected{
+        border: solid 1px @qubit-orange;
+      }
+    }
+
+    > div{
+      height: 20px;
+      padding: 3px 5px 3px 30px;
+      text-align: left;
+
+      span,
+      label{
+        top: 0;
+        width: 100%;
+        height: 20px;
+        padding: 0;
+
+        line-height: 24px;
+        text-align: left;
+        font-size: 1em;
+        color: #FFFFFF !important;
+
+        word-wrap: nowrap;
+        overflow: hidden;
+      }
+
+      label span{
+        height: 20px;
+      }
+    }
+
+  } // END DT-Layer
+
+} // END #DeliverToolbarLayers

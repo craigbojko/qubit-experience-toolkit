@@ -14,7 +14,8 @@
   },
   "dependencies": {
     "hogan.js-template": "^2.0.0",
-    "jquery": "1.11.*"
+    "jquery": "1.11.*",
+    "node-underscorify": "0.0.14",
   },
   "devDependencies": {
     "grunt": "~0.4.5",

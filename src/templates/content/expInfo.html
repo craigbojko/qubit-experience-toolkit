@@ -1,0 +1,23 @@
+<div id='DeliverToolbarInfoContent'>
+  <div class='top'>
+    <p class='title'><%= name %></p>
+    <p class='status titled <%= status %>'><span>Status: </span><%= status %></p>
+    <p class='iteration titled'><span>Iteration:</span><%= iteration %></p>
+  </div>
+  <div class='middle'>
+  	<div class='ids'>
+    	<p class='experiment_id'></p>
+
+    	<p class='experiment_split titled'><span>Split Ratio: </span><%= split %></p>
+    	<p class='experiment_probability titled'><span>Probability Assignment: </span><%= probability %></p>
+    	<p class='experiment_bucket titled'><span>Experiment Bucket: </span><%= bucket %></p>
+    	<p class='experiment_creation titled'><span>Experiment Creation Date: </span><%= date_creation %></p>
+    	<p class='experiment_published titled'><span>Experiment Last Published: </span><%= date_last_publish %></p>
+
+    </div>
+  </div>
+  <div class='bottom'>
+    <div class='feedback'><a href='mailto:craig@qubit.com'>Give Feedback</a></div>
+    <div class='qr_preview'></div>
+  </div>
+</div>

@@ -1,0 +1,188 @@
+/* Main DeliverToolbar Styles */
+
+#DeliverToolbar{
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 250px;
+  height: auto;
+  min-height: 45px;
+  background: @qubit-grey;
+  z-index: 9999;
+  box-sizing: initial;
+  transition: all 0.5s ease-in-out;
+  font-family: 'Qubit-300';
+  font-size: 12px;
+
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  *:before,
+  *:after
+  p{
+    -webkit-box-sizing: content-box !important;
+    box-sizing: content-box !important;
+  }
+
+  &.DT-minimise{
+    left: -250px !important;
+  }
+}
+
+#DeliverToolbarWrapper{
+	position: relative;
+  top: 0px;
+  left: 0px;
+  width: 250px;
+  height: 45px;
+  min-height: 45px;
+  max-height: 50px;
+  font-family: 'Qubit-300';
+  background: @qubit-orange;
+  transition: all 0.3s ease-in-out;
+
+  &.expanded{
+    width: 650px;
+    z-index: 1;
+  }
+
+  span{
+    width: 100%;
+    padding: 5px 10px;
+    text-align: center;
+    font-size: 18px;
+    line-height: 50px;
+    color: white;
+  }
+}
+
+#DeliverToolbarViewOptions{
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0px;
+  height: 100%;
+
+  a{
+    font-family: 'Qubit-300';
+    font-size: 18px;
+    color: #FFFFFF;
+    text-decoration: none;
+  }
+
+  div{
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 100%;
+
+    background-color: rgb(216, 109, 57);
+    text-align: center;
+    color: white;
+    font-size: 16pt;
+    font-weight: bold;
+    line-height: 45px;
+    cursor: pointer;
+  }
+}
+#DeliverToolbarViewOptions .toolbarMinimise a:after{
+  font-family: 'Qubit-300';
+  font-size: 18px;
+  color: #FFFFFF;
+  content: "<";
+}
+#DeliverToolbar.DT-minimise #DeliverToolbarViewOptions .toolbarMinimise a:after{
+  font-family: 'Qubit-300';
+  font-size: 18px;
+  color: #FFFFFF;
+  content: ">";
+}
+
+#DeliverToolbarMeta{
+  height: 0%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+#DeliverToolbarLayerPreviews{
+  border-bottom: none;
+  height: auto;
+
+  &.active{
+    min-height: 90px;
+
+    #DeliverPreviewer{
+      min-height: 90px;
+    }
+  }
+}
+
+#DeliverToolbarLayerActivations{
+  border-left: none;
+  border-right: none;
+  font-size: 14px;
+}
+
+#DeliverToolbarLayerPreviews,
+#DeliverToolbarLayerActivations,
+#DeliverToolbarMeta #DeliverSnippetsWrapper .snippetCont,
+#DeliverToolbarMeta #DeliverEventRecorder .snippetCont,
+#DeliverToolbarMeta #DeliverPreviewer  .snippetCont{
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  height: 30px;
+  margin: -1px 0px 0px -1px;
+  line-height: 30px;
+  text-align: center;
+  border-top: solid 1px #999999;
+  border-bottom: solid 1px #999999;
+  color: #FFFFFF !important;
+  opacity: 1;
+
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+#DeliverToolbarLayerPreviews:hover,
+#DeliverToolbarLayerActivations:hover,
+#DeliverToolbarMeta #DeliverSnippetsWrapper .snippetCont:hover,
+#DeliverToolbarMeta #DeliverEventRecorder .snippetCont:hover,
+#DeliverToolbarMeta #DeliverPreviewer  .snippetCont:hover{
+  background-color: #666666;
+  text-decoration: none;
+  cursor: pointer;
+}
+#DeliverToolbarLayerPreviews:active,
+#DeliverToolbarLayerActivations:active,
+#DeliverToolbarMeta #DeliverSnippetsWrapper .snippetCont:active,
+#DeliverToolbarMeta #DeliverEventRecorder .snippetCont:active,
+#DeliverToolbarMeta #DeliverPreviewer  .snippetCont:active{
+  background-color: @qubit-green;
+  color: #000;
+}
+
+
+#DeliverToolbarMeta #DeliverSnippetsWrapper .snippetCont span,
+#DeliverToolbarMeta #DeliverEventRecorder .snippetCont span,
+#DeliverToolbarMeta #DeliverPreviewer .snippetCont span{
+  color: #FFFFFF !important;
+  font-size: 14px;
+}
+
+#DeliverToolbarMeta #DeliverEventRecorder .snippetCont span.recording{
+  color: @qubit-green !important;
+}
+
+#DeliverToolbarMeta #DeliverSnippetsWrapper .snippetCont span:hover,
+#DeliverToolbarMeta #DeliverEventRecorder .snippetCont span:hover,
+#DeliverToolbarMeta #DeliverPreviewer .snippetcont span:hover{
+  text-decoration: none;
+}
