@@ -7,17 +7,24 @@ var toolkit_snippets = {
   debugSnippets : [
     {
       name : "Inject Opentag Debug",
-      code : function(){
-          var rand = Math.round(Math.random()*10000000000000);
-          var e=document.createElement('script');
-          e.src='https://s3-eu-west-1.amazonaws.com/qubit-etc/bookmarklets/opentag-inject-debug.js?'+rand;
-          document.getElementsByTagName('head')[0].appendChild(e);
-      }
+      code : require('../common/snippets/opentag')
     },
-    { name : "Show Exit Feedback", code : function(){alert("SNIPPET2");} },
-    { name : "Validate UV", code : function(){alert("SNIPPET3");} },
-    { name : "View Data Layers", code : function(){alert("SNIPPET4");} },
-    { name : "ContentEditable", code : function(){alert("SNIPPET5");} }
+    {
+      name : "Show Exit Feedback",
+      code : require('../common/snippets/exit_feedback')
+    },
+    {
+      name : "Validate UV",
+      code : require('../common/snippets/validate_uv')
+    },
+    {
+      name : "View Data Layers",
+      code : require('../common/snippets/data_layers')
+    },
+    {
+      name : "ContentEditable",
+      code : require('../common/snippets/content_editable')
+    }
   ],
 
   init : function(t){

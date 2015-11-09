@@ -92,22 +92,22 @@ var creative_resolver = {
   },
 
   returnAllData : function(data, experimentId, callback){
-    console.log("EXPERIMENT & CREATIVE RESP: ", data);
+    if(this.toolkit.DEBUG) this.toolkit.c.log("EXPERIMENT & CREATIVE RESP: ", data);
     // this.creativeData[experimentId] = data;
     callback(data);
   },
   returnCreativeData : function(data, experimentId, callback){
-    console.log("CREATIVE RESP: ", data);
+    if(this.toolkit.DEBUG) this.toolkit.c.log("CREATIVE RESP: ", data);
     this.creativeData[experimentId] = data;
     callback(data);
   },
   returnExperimentData : function(data, experimentId, callback){
-    console.log("EXPERIMENT RESP: ", data);
+    if(this.toolkit.DEBUG) this.toolkit.c.log("EXPERIMENT RESP: ", data);
     this.experimentData[experimentId] = data;
     callback(data);
   },
   returnError : function(error, experimentId, callback){
-    console.error("PROMISE FAIL: ", experimentId);
+    this.toolkit.c.error("PROMISE FAIL: ", experimentId);
   }
 };
 

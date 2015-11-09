@@ -64,7 +64,7 @@ var event_recorder = {
   },
 
   pongListener : function(){
-    this.toolkit.chromeInstance.runtime.onMessage.addListener(
+    deliverToolkit.chromeInstance.runtime.onMessage.addListener(
       function(request, sender, sendResponse) {
         if (request.type == "pong_event"){
           var uv_event = false;

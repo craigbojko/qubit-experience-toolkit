@@ -17,6 +17,10 @@ var API = {
 };
 
 var DeliverToolkit = function(chrome){
+  this.VERSION = '0.2.3';
+  this.CHROME_VERSION = '-';
+
+  this.DEBUG = false || /qbDT_debug/.test(document.cookie);
   this.API = API;
   this.chromeInstance = chrome;
   this.toolbarReady = false;
@@ -25,10 +29,12 @@ var DeliverToolkit = function(chrome){
   this.data = {};
   this.experiments = {};
   this.c = {
-    log : function(msg, args){ console.log(msg, args); },
-    info : function(msg, args){ console.info(msg, args); },
-    warn : function(msg, args){ console.warn(msg, args); },
-    error : function(msg, args){ console.error(msg, args); },
+    logRaw : function(msg, args){ console.log(msg, args); },
+    table : function(msg, args){ console.table(msg, args); },
+    log : function(msg, args){ console.group('Qubit Deliver Toolkit::'+msg); if(args) {console.log(args);} console.groupEnd(); },
+    info : function(msg, args){ console.group('Qubit Deliver Toolkit::'+msg); if(args) {console.info(args);} console.groupEnd(); },
+    warn : function(msg, args){ console.group('Qubit Deliver Toolkit::'+msg); if(args) {console.warn(args);} console.groupEnd(); },
+    error : function(msg, args){ console.group('Qubit Deliver Toolkit::'+msg); if(args) {console.error(args);} console.groupEnd(); },
     group : function(msg){ console.group(msg); },
     groupEnd : function(){ console.groupEnd(); }
   };
@@ -36,9 +42,11 @@ var DeliverToolkit = function(chrome){
 
 DeliverToolkit.prototype.init = function(){
   var _self = this;
-  // window.deliverToolkit = window.deliverToolkit || this;
+  window.deliverToolkit = this || {};
 
-  this.c.log('%c Qubit Deliver Toolkit', 'color: #D86D39; font-size: 16pt;');
+  this.c.logRaw('%c Qubit Deliver Toolkit', 'color: #D86D39; font-size: 16pt;');
+  this.c.log('running...');
+
   if( this.initialised ) return;
 
   // Pong event setup - early as possible
@@ -46,7 +54,7 @@ DeliverToolkit.prototype.init = function(){
     API.event_recorder.initPongListener();
   }
   this.chromeInstance.runtime.sendMessage({type: "setupPongCapture"}, function(response) {
-    _self.c.info(response);
+    if(_self.DEBUG) _self.c.info(response);
   });
 
   // Start listening for UV updates
@@ -72,7 +80,7 @@ DeliverToolkit.prototype.detectSmartserve = function(event){
   }
   else if( src && src !== '' && src.toLowerCase().indexOf('//dd6zx4ibq538k.cloudfront.net/smartserve') >= 0 ){
     this.clientId = src.match('dd6zx4ibq538k.cloudfront.net/smartserve-([0-9]{4}).js')[1];
-    this.c.info("DELIVER LOADED: ", this.clientId);
+    if(this.DEBUG) this.c.info("DELIVER LOADED: ", this.clientId);
 
     if( /smartserve_preview=/.test(document.URL) || /smartserve_preview=/.test(document.cookie) ){
       this.smartserve_preview = true;
@@ -92,7 +100,7 @@ DeliverToolkit.prototype.detectSmartservePreview = function(){
     var source = event.target.textContent || event.target.innerText;
 
     if( src && src !== '' && src.toLowerCase().indexOf('smartserve.s3.amazonaws.com/smartserve') >= 0 ){
-      this.c.log("DELIVER PREVIEW LOADED: ", this.clientId);
+      if(this.DEBUG) this.c.log("DELIVER PREVIEW LOADED: ", this.clientId);
       this.getDashboardManifest();
       this.initialised = true;
     }
@@ -104,7 +112,7 @@ DeliverToolkit.prototype.getDashboardManifest = function(){
     url : "//dashboard.qubitproducts.com/p/"+this.clientId+"/smart_serve/experiments/",
     cache : false,
     success : function(data){
-      this.c.info("DASHBOARD MANIFEST: ", data);
+      if(this.DEBUG) this.c.info("DASHBOARD MANIFEST: ", data);
       this.buildDataObj(data);
     }.bind(this),
     fail : function(e){
@@ -243,7 +251,7 @@ DeliverToolkit.prototype.openExperimentInfo = function(experimentId){
   }
   else{
     API.creative_resolver.getExperimentAndCreative(experimentId, function(data){
-      this.c.info("EC DATA: ", data);
+      if(this.DEBUG) this.c.info("EC DATA: ", data);
       this.renderExperimentInfo(data);
     }.bind(this));
 
@@ -270,7 +278,7 @@ DeliverToolkit.prototype.renderExperimentInfo = function(data){
   var $infoBar = this.$el.find('#DeliverToolbarInfo');
   var model = this.parseECData(data);
 
-  this.c.log("EC MODEL: ", model);
+  if(this.DEBUG) this.c.log("EC MODEL: ", model);
   $infoBar.find('.loadingBar').hide();
 
   $html = $(templates.expInfo({
@@ -285,7 +293,9 @@ DeliverToolkit.prototype.renderExperimentInfo = function(data){
     links : {
       previews : {},
       dashboard : ''
-    }
+    },
+    DT_VERSION : this.VERSION,
+    CHROME_VERSION : this.CHROME_VERSION
   }));
 
   // var qrcode = QRCode.qrcode($html.find('.qr_preview')[0]);
@@ -392,8 +402,8 @@ DeliverToolkit.prototype.injectUVConnectionScripts = function(file, chrome){
 
   window.addEventListener('message', function(event){
     if( event.data.type === "uv_initial_response" || event.data.type === "ss_creative_response" ){
-      this.c.group('DELIVER TOOLKIT: COMMS_RESPONSE: ');
-      // this.c.info(event.data.data);
+      if(this.DEBUG) this.c.group('DELIVER TOOLKIT: COMMS_RESPONSE: ');
+      // if(this.DEBUG) this.c.info(event.data.data);
       try{
         if( event.data.type === "uv_initial_response" ){
           this.uv = JSON.parse(event.data.data);
@@ -407,7 +417,7 @@ DeliverToolkit.prototype.injectUVConnectionScripts = function(file, chrome){
       catch(e){
         this.c.error("CANNOT PARSE COMMS_INITIAL_RESPONSE: ", e);
       }
-      this.c.groupEnd();
+      if(this.DEBUG) this.c.groupEnd();
     }
   }.bind(this));
 
@@ -426,8 +436,8 @@ DeliverToolkit.prototype.requestUVUpdate = function(){
 DeliverToolkit.prototype.listenForUVUpdates = function(){
   window.addEventListener('message', function(event){
     if( event.data.type === "uv_update_response" ){
-      this.c.group('DELIVER TOOLKIT: UV_UPDATE_RESPONSE: ');
-      this.c.info(event.data.data);
+      if(this.DEBUG) this.c.group('DELIVER TOOLKIT: UV_UPDATE_RESPONSE: ');
+      if(this.DEBUG) this.c.info(event.data.data);
       try{
         this.uv = JSON.parse(event.data.data);
         if( this.uv && this.uv.qb && this.uv.qb.qb_etc_data ){
@@ -437,7 +447,7 @@ DeliverToolkit.prototype.listenForUVUpdates = function(){
       catch(e){
         this.c.error("CANNOT PARSE UV_UPDATE_RESPONSE: ", e);
       }
-      this.c.groupEnd();
+      if(this.DEBUG) this.c.groupEnd();
     }
   }.bind(this));
 };

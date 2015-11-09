@@ -1,6 +1,6 @@
 {
   "name": "deliver-toolkit",
-  "version": "1.0.0",
+  "version": "0.2.3",
   "description": "Debug toolbar for Qubit Deliver personalisation platform.",
   "main": "index.js",
   "scripts": {
@@ -13,9 +13,9 @@
     "url": "git://github.com/username/repository.git"
   },
   "dependencies": {
-    "hogan.js-template": "^2.0.0",
     "jquery": "1.11.*",
     "node-underscorify": "0.0.14",
+    "qrcode-npm": "0.0.3"
   },
   "devDependencies": {
     "grunt": "~0.4.5",

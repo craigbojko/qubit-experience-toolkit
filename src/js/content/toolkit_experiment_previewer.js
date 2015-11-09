@@ -33,7 +33,12 @@ var experiment_previewer = {
                       "</div>",
                     "</div>"].join(''));
 
-    this.toolkit.$el.find('#DeliverToolbarLayerPreviews').append($html);
+    var $preview_meta = this.toolkit.$el.find('#DeliverToolbarLayerPreviews');
+    $preview_meta.append($html);
+    if (this.toolkit.smartserve_preview && this.toolkit.smartserve_preview === true) {
+      $preview_meta.addClass('preview_mode');
+    }
+
     return this.toolkit.$el.find('#DeliverToolbarMeta');
   },
 
@@ -108,7 +113,7 @@ var experiment_previewer = {
 
     Promise.all(experiment_promises).then(function(data){
       // update cookies
-      console.info("COOKIE CREATIVE ID DATA: ", data);
+      _self.toolkit.c.info("COOKIE CREATIVE ID DATA: ", data);
 
       var creatives = [];
       $.each(data, function(index){
@@ -121,7 +126,7 @@ var experiment_previewer = {
       _self.runPreviewCookies(creatives);
 
     }, function(e){
-      console.error("ERROR: Failed to retreive all Creative IDs: ", e);
+      _self.toolkit.c.error("ERROR: Failed to retreive all Creative IDs: ", e);
     });
 
   },
@@ -134,8 +139,8 @@ var experiment_previewer = {
     expires.setMinutes(expires.getMinutes() + 15);
     expires = expires.toUTCString();
 
-    console.info("CURRENT DOMAIN: ", _self.toolkit.ss_domain);
-    console.info("CURRENT CREATIVES: ", creatives);
+    this.toolkit.c.info("CURRENT DOMAIN: ", _self.toolkit.ss_domain);
+    this.toolkit.c.info("CURRENT CREATIVES: ", creatives);
 
     document.cookie = 'smartserve_preview=true; expires='+expires+'; path=/; domain='+_self.toolkit.ss_domain;
     document.cookie = 'etcForceCreative=['+creative_str+']; expires='+expires+'; path=/; domain='+_self.toolkit.ss_domain;
@@ -217,7 +222,7 @@ var experiment_previewer = {
       }
 
       _self.requestCreativeIds(exp);
-      console.info("CURRENT SELECTED EXPERIMENTS: ", exp);
+      _self.toolkit.c.info("CURRENT SELECTED EXPERIMENTS: ", exp);
     });
 
     $activator.find('.cancel').click(function(e){
