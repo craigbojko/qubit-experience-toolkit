@@ -15,7 +15,8 @@
   "dependencies": {
     "jquery": "1.11.*",
     "node-underscorify": "0.0.14",
-    "qrcode-npm": "0.0.3"
+    "qrcode-npm": "0.0.3",
+    "standard": "^5.3.1"
   },
   "devDependencies": {
     "grunt": "~0.4.5",
