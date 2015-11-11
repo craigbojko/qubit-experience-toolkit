@@ -1,7 +1,7 @@
-var $ = require('jquery')
+;(function (c) {
+  var $ = require('jquery')
 
-;(function ($, c) {
-  function DeliverToolkitPopup ($, c) {
+  function DeliverToolkitPopup (c) {
     this.$ = $
     this.$el = ''
     this.chrome = c
@@ -9,6 +9,7 @@ var $ = require('jquery')
     if (!this.chrome) {
       throw new Error('No chrome instance found.')
     }
+    this.init()
   }
 
   DeliverToolkitPopup.prototype.disableExtension = function (cb) {
@@ -78,6 +79,5 @@ var $ = require('jquery')
     })
   }
 
-  var popup = new DeliverToolkitPopup($, c)
-  popup.init()
-})($, window.chrome)
+  return new DeliverToolkitPopup(c)
+})(window.chrome)
