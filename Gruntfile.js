@@ -1,3 +1,5 @@
+var exec = require('child_process').exec
+
 module.exports = function (grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -141,14 +143,13 @@ module.exports = function (grunt) {
     })
     server.listen(8890)
   })
-  grunt.registerTask('reload', 'reload Chrome on OS X',
-    function () {
-      require('child_process').exec('osascript ' +
-        '-e \'tell application "Google Chrome" ' +
-        "to tell the active tab of its first window' " +
-        "-e 'reload' " +
-        "-e 'end tell'")
-    })
+  grunt.registerTask('reload', 'reload Chrome on OS X', function () {
+    exec('osascript ' +
+      "-e 'tell application \"Google Chrome\" " +
+      "to tell the active tab of its first window' " +
+      "-e 'reload' " +
+      "-e 'end tell'")
+  })
 
   grunt.registerTask('default', ['watch'])
   grunt.registerTask('build', ['less', 'browserify', 'copy'])
