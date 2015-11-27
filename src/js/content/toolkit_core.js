@@ -14,6 +14,8 @@ var api = {
   creativeResolver: require('./toolkit_creative_resolver')(),
   experimentPreviewer: require('./toolkit_experiment_previewer')()
 }
+var smartservePreview
+var initialised = false
 
 function DeliverToolkit (chrome) {
   this.VERSION = '0.2.3'
@@ -23,7 +25,6 @@ function DeliverToolkit (chrome) {
   this.chromeInstance = chrome
   this.toolbarReady = false
   this.clientId = -1
-  this.initialised = false
   this.data = {}
   this.experiments = {}
 }
@@ -34,7 +35,9 @@ DeliverToolkit.prototype.init = function () {
   logger.logRaw('%c Qubit Deliver Toolkit', 'color: #D86D39; font-size: 16pt;')
   logger.log('running...')
 
-  if (this.initialised) return
+  if (initialised) {
+    return
+  }
 
   // Pong event setup - early as possible
   if (storage.loadFromStorage('uv_logger') === true) {
@@ -47,65 +50,71 @@ DeliverToolkit.prototype.init = function () {
   // Start listening for UV updates
   this.listenForUVUpdates()
 
+  this.bindDocumentEvents()
+}
+
+DeliverToolkit.prototype.bindDocumentEvents = function () {
   // Look for UV once DOM parsed
   document.addEventListener('DOMContentLoaded', this.injectUVConnectionScript.bind(this), false)
 
   // Listen to all sources and detect Qubit Smartserve file
-  document.addEventListener('load', this.detectSmartserve.bind(this), true)
+  document.addEventListener('load', this.onScriptLoad.bind(this), true)
 }
 
-DeliverToolkit.prototype.detectSmartserve = function (event) {
-  if (!event) {
+DeliverToolkit.prototype.unbindDocumentEvents = function () {
+  document.removeEventListener('DOMContentLoaded')
+  document.removeEventListener('load')
+}
+
+DeliverToolkit.prototype.onScriptLoad = function (event) {
+  var src = event.target.src
+
+  if (initialised || !src || src === '') {
     return
   }
 
-  var src = event.target.getAttribute('src')
+  src = src.toLowerCase()
 
-  if (this.initialised) {
-    return
-  } else if (src && src !== '' && src.toLowerCase().indexOf('//dd6zx4ibq538k.cloudfront.net/smartserve') >= 0) {
-    this.clientId = src.match('dd6zx4ibq538k.cloudfront.net/smartserve-([0-9]{4}).js')[1]
-    if (this.DEBUG) logger.info('DELIVER LOADED: ', this.clientId)
-
-    if (/smartserve_preview=/.test(document.URL) || /smartserve_preview=/.test(document.cookie)) {
-      this.smartservePreview = true
-      this.detectSmartservePreview()
+  if (src.indexOf('//dd6zx4ibq538k.cloudfront.net/smartserve') >= 0) {
+    this.clientId = src.match('dd6zx4ibq538k.cloudfront.net/smartserve-(\d+).js')[1]
+    if (this.DEBUG) {
+      logger.info('DELIVER LOADED: ', this.clientId)
+    }
+    if (isPreviewMode()) {
+      smartservePreview = true
     } else {
       this.getDashboardManifest()
-      this.initialised = true
+      initialised = true
     }
   }
-}
 
-DeliverToolkit.prototype.detectSmartservePreview = function () {
-  // Listen and defer for preview file before loading
-  document.addEventListener('load', function (event) {
-    var src = event.target.getAttribute('src')
-
-    if (src && src !== '' && src.toLowerCase().indexOf('smartserve.s3.amazonaws.com/smartserve') >= 0) {
-      if (this.DEBUG) logger.log('DELIVER PREVIEW LOADED: ', this.clientId)
-      this.getDashboardManifest()
-      this.initialised = true
-    }
-  }.bind(this), true)
+  if (/smartserve\.s3\.amazonaws\.com\/smartserve-\d+-preview/.test(src)) {
+    if (this.DEBUG) logger.log('DELIVER PREVIEW LOADED: ', this.clientId)
+    this.getDashboardManifest()
+    initialised = true
+  }
 }
 
 DeliverToolkit.prototype.getDashboardManifest = function () {
   $.ajax({
     url: '//dashboard.qubitproducts.com/p/' + this.clientId + '/smart_serve/experiments/',
     cache: false,
-    success: function (data) {
-      var self = this
-      if (this.DEBUG) logger.info('DASHBOARD MANIFEST: ', data)
-      this.data = data.reverse()
-      $(function () {
-        self.initToolbar()
-      })
-    }.bind(this),
-    fail: function (e) {
-      logger.error('Error retreiving Dashboard manifest data: ', e)
-    }
+    success: onSuccess.bind(this),
+    fail: onFailure.bind(this)
   })
+
+  function onSuccess (data) {
+    var self = this
+    if (this.DEBUG) logger.info('DASHBOARD MANIFEST: ', data)
+    this.data = data.reverse()
+    $(function () {
+      self.initToolbar()
+    })
+  }
+
+  function onFailure (e) {
+    logger.error('Error retreiving Dashboard manifest data: ', e)
+  }
 }
 
 DeliverToolkit.prototype.initToolbar = function () {
@@ -191,12 +200,12 @@ DeliverToolkit.prototype.resetLayers = function () {
 DeliverToolkit.prototype.indicateActiveExperiments = function () {
   var uv = this.uv || {}
 
-  if (uv && uv.qb && uv.qb.qb_etc_data && (!this.smartservePreview || this.smartservePreview === null)) {
+  if (uv && uv.qb && uv.qb.qb_etc_data && (!smartservePreview || smartservePreview === null)) {
     $.each(uv.qb.qb_etc_data, function (index) {
       var experimentId = this.e
       $('div[data-id="' + experimentId + '"]').find('.indicator').addClass('active')
     })
-  } else if (this.smartservePreview === true && this.previewCreatives) {
+  } else if (smartservePreview === true && this.previewCreatives) {
     var that = this
     $.each(this.previewCreatives, function (index) {
       var experimentId = that.ss_opts[0].creatives[this].e_id
@@ -232,7 +241,7 @@ DeliverToolkit.prototype.closeExperimentInfo = function () {
 DeliverToolkit.prototype.renderExperimentInfo = function (data) {
   var $infoBar = this.$el.find('#DeliverToolbarInfo')
   var model = parseECData(data, {
-    isPreview: this.smartservePreview
+    isPreview: smartservePreview
   })
 
   if (this.DEBUG) logger.log('EC MODEL: ', model)
@@ -331,9 +340,9 @@ DeliverToolkit.prototype.initRender = function () {
 }
 
 DeliverToolkit.prototype.render = function () {
-  if (this.uv && this.uv.qb && this.uv.qb.qb_etc_data && (!this.smartservePreview || this.smartservePreview === null)) {
+  if (this.uv && this.uv.qb && this.uv.qb.qb_etc_data && (!smartservePreview || smartservePreview === null)) {
     this.indicateActiveExperiments()
-  } else if (this.smartservePreview === true) {
+  } else if (smartservePreview === true) {
     var urlCid, cookieCid, cookieCids, etcCookie
     try {
       urlCid = document.URL.match(/etcForceCreative=([0-9].*)/)
@@ -369,6 +378,10 @@ DeliverToolkit.prototype.render = function () {
   api.creativeResolver.init(this)
   api.eventRecorder.init(this)
   api.experimentPreviewer.init(this)
+}
+
+function isPreviewMode () {
+  return /smartserve_preview=/.test(document.URL) || /smartserve_preview=/.test(document.cookie)
 }
 
 // Return DeliverToolkit for commonjs
