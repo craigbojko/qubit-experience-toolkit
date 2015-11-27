@@ -1,4 +1,5 @@
 var $ = require('jquery')
+var parseECData = require('./parse_ec_data')
 var storage = require('../common/storage')
 var cookie = require('../common/cookie')
 var logger = require('../common/logger')()
@@ -176,17 +177,14 @@ DeliverToolkit.prototype.listToolbarLayers = function () {
 }
 
 DeliverToolkit.prototype.resetLayers = function () {
-  var $activations = this.$el.find('#DeliverToolbarLayerActivations')
-  var $previewer = this.$el.find('#DeliverPreviewer')
-  var $previewerParent = this.$el.find('#DeliverToolbarLayerPreviews')
   var $layers = this.$el.find('#DeliverToolbarLayers')
 
   if ($layers.hasClass('open')) {
-    this.closeEperimentInfo()
-    $activations.removeClass('active')
-    $previewer.removeClass('active')
-    $previewerParent.removeClass('active')
+    this.closeExperimentInfo()
     $layers.removeClass('open').empty()
+    this.$el.find('#DeliverToolbarLayerActivations').removeClass('active')
+    this.$el.find('#DeliverPreviewer').removeClass('active')
+    this.$el.find('#DeliverToolbarLayerPreviews').removeClass('active')
   }
 }
 
@@ -208,39 +206,34 @@ DeliverToolkit.prototype.indicateActiveExperiments = function () {
 }
 
 DeliverToolkit.prototype.openExperimentInfo = function (experimentId) {
-  var $topBar = this.$el.find('#DeliverToolbarWrapper')
-  var $infoBar = this.$el.find('#DeliverToolbarInfo')
-
   if (this.currentlyOpenExperiment === experimentId) {
-    this.closeEperimentInfo()
+    this.closeExperimentInfo()
   } else {
     api.creativeResolver.getExperimentAndCreative(experimentId, function (data) {
       if (this.DEBUG) logger.info('EC DATA: ', data)
       this.renderExperimentInfo(data)
     }.bind(this))
 
-    $infoBar.find('.loadingBar').show()
-    $topBar.addClass('expanded')
-    $infoBar.addClass('expanded')
+    this.$el.find('#DeliverToolbarWrapper').addClass('expanded')
+    this.$el.find('#DeliverToolbarInfo').find('.loadingBar').show().addClass('expanded')
     this.currentlyOpenExperiment = experimentId
     this.$el.find('.DT-Layer').removeClass('open')
     this.$el.find('.DT-Layer[data-id="' + experimentId + '"]').addClass('open')
   }
 }
 
-DeliverToolkit.prototype.closeEperimentInfo = function () {
-  var $topBar = this.$el.find('#DeliverToolbarWrapper')
-  var $infoBar = this.$el.find('#DeliverToolbarInfo')
-
-  $topBar.removeClass('expanded')
-  $infoBar.removeClass('expanded')
+DeliverToolkit.prototype.closeExperimentInfo = function () {
+  this.$el.find('#DeliverToolbarWrapper').removeClass('expanded')
+  this.$el.find('#DeliverToolbarInfo').removeClass('expanded')
   this.currentlyOpenExperiment = -1
   this.$el.find('.DT-Layer').removeClass('open')
 }
 
 DeliverToolkit.prototype.renderExperimentInfo = function (data) {
   var $infoBar = this.$el.find('#DeliverToolbarInfo')
-  var model = this.parseECData(data)
+  var model = parseECData(data, {
+    isPreview: this.smartservePreview
+  })
 
   if (this.DEBUG) logger.log('EC MODEL: ', model)
   $infoBar.find('.loadingBar').hide()
@@ -263,75 +256,6 @@ DeliverToolkit.prototype.renderExperimentInfo = function (data) {
   }))
 
   $infoBar.find('.inject').html($html)
-}
-
-DeliverToolkit.prototype.parseECData = function (data) {
-  var variations = []
-  var controlMap = {
-    0.5: 'Equal Split',
-    0.05: 'Supervised Mode',
-    0: '100% Layer',
-    0.8: 'Pilot Mode'
-  }
-
-  var model = {
-    hasBeenPublished: false,
-    experiment: data[0],
-    creative: data[1],
-    split: '',
-    prob: '',
-    bucket: 'Not active/Not segmented'
-  }
-
-  $.each(data[1], function (index, variation) {
-    if (variation.is_control !== true) {
-      variations.push(variation)
-    }
-  })
-
-  if (this.uv && this.uv.qb && this.uv.qb.qb_etc_data && this.uv.qb.qb_etc_data) {
-    $.each(this.uv.qb.qb_etc_data, function (index, variation) {
-      if (variation.e && variation.e === data[0].id) {
-        model.qb_etc_data = variation
-        model.prob = variation.p
-      }
-    })
-  }
-
-  if (data[0].recent_iterations.published) {
-    model.hasBeenPublished = true
-  }
-
-  if (data[0].recent_iterations && data[0].recent_iterations.published && data[0].recent_iterations.published.state) {
-    model.status = data[0].recent_iterations.published.state
-  } else if (data[0].recent_iterations && !data[0].recent_iterations.published) {
-    model.status = 'In Development'
-  } else {
-    model.status = 'Draft'
-  }
-
-  if (/published/i.test(model.status)) {
-    model.control_size = data[0].recent_iterations.published.control_size
-    model.last_published = data[0].recent_iterations.published.last_published_at
-    model.split = controlMap[model.control_size]
-  } else {
-    model.control_size = data[0].recent_iterations.draft.control_size
-    model.split = controlMap[model.control_size]
-  }
-
-  if (model.prob && model.prob !== '') {
-    var inControl = (1 - model.prob) <= model.control_size
-    if (inControl) {
-      model.bucket = 'Control'
-    } else {
-      model.bucket = 'Variant'
-    }
-  } else if (this.smartservePreview && this.smartservePreview === true) {
-    model.prob = 'Preview Mode'
-    model.bucket = 'Preview Mode'
-  }
-
-  return model
 }
 
 DeliverToolkit.prototype.injectUVConnectionScript = function () {
