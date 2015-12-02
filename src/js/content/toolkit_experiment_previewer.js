@@ -1,4 +1,5 @@
 var $ = require('jquery')
+var logger = require('../common/logger')()
 var ToolkitCreativeResolver = require('./toolkit_creative_resolver.js')()
 
 module.exports = function createExperimentPreviewer () {
@@ -12,6 +13,7 @@ module.exports = function createExperimentPreviewer () {
       var _self = this
       this.toolkit = t
       this.selectedExperiments = {}
+      ToolkitCreativeResolver.init(t)
 
       _self.buildHTML()
       _self.displayRunningPreviews()
@@ -20,21 +22,21 @@ module.exports = function createExperimentPreviewer () {
     },
 
     buildHTML: function (snippetArr) {
-      var $html = $(["<div id='DeliverPreviewer'>",
-        "<div class='snippetCont'>",
+      var $html = $(['<div id="DeliverPreviewer">',
+        '<div class="snippetCont">',
         '<span>Preview Tests</span>',
-        "<div class='activePreviews'></div>",
-        "<div class='activator'>",
-        "<p class='activate'>Preview <span>0 Tests</span></p>",
-        "<p class='cancel'>Cancel</p>",
-        "<p class='clearPreview'>Clear Previews</p>",
+        '<div class="activePreviews"></div>',
+        '<div class="activator">',
+        '<p class="activate">Preview <span>0 Tests</span></p>',
+        '<p class="cancel">Cancel</p>',
+        '<p class="clearPreview">Clear Previews</p>',
         '</div>',
         '</div>',
         '</div>'].join(''))
 
       var $preview_meta = this.toolkit.$el.find('#DeliverToolbarLayerPreviews')
       $preview_meta.append($html)
-      if (this.toolkit.smartserve_preview && this.toolkit.smartserve_preview === true) {
+      if (this.toolkit.smartservePreview && this.toolkit.smartservePreview === true) {
         $preview_meta.addClass('preview_mode')
       }
 
@@ -50,10 +52,10 @@ module.exports = function createExperimentPreviewer () {
       $(this.toolkit.data).each(function (index) {
         var odd = (index % 2 === 0) ? 'even' : 'odd'
         var $layer = $([
-          "<div class='DT-Layer " + odd + "' data-id='" + this.id + "' >",
-          "<input type='checkbox' data-experiemntId='" + this.id + "' data-creativeId='' class='' id='DeliverPreviewerCheckbox-" + this.id + "' />",
+          '<div class="DT-Layer ' + odd + '" data-id="' + this.id + '" >',
+          '<input type="checkbox" data-experiemntId="' + this.id + '" data-creativeId=" class=" id="DeliverPreviewerCheckbox-' + this.id + '" />',
           '<div>',
-          "<label for='DeliverPreviewerCheckbox-" + this.id + "'><span>" + this.name + '</span></label>',
+          '<label for="DeliverPreviewerCheckbox-' + this.id + '"><span>' + this.name + '</span></label>',
           '</div>',
           '</div>'
         ].join(''))
@@ -64,19 +66,19 @@ module.exports = function createExperimentPreviewer () {
       _self.bindExperimentEvents()
 
       // Open list
-      _self.toolkit.closeEperimentInfo()
+      _self.toolkit.closeExperimentInfo()
       $listWrapper.addClass('open')
     },
 
     displayRunningPreviews: function () {
       var _self = this
 
-      if (_self.toolkit.smartserve_preview === true &&
-        _self.toolkit.preview_creatives &&
-        _self.toolkit.preview_creatives.length > 0
+      if (_self.toolkit.smartservePreview === true &&
+        _self.toolkit.previewCreatives &&
+        _self.toolkit.previewCreatives.length > 0
       ) {
         var $display = _self.toolkit.$el.find('.activePreviews')
-        $display.html(_self.toolkit.preview_creatives.length + ' Previews active')
+        $display.html(_self.toolkit.previewCreatives.length + ' Previews active')
         $display.addClass('active')
       }
     },
@@ -112,7 +114,7 @@ module.exports = function createExperimentPreviewer () {
 
       Promise.all(experiment_promises).then(function (data) {
         // update cookies
-        _self.toolkit.c.info('COOKIE CREATIVE ID DATA: ', data)
+        logger.info('COOKIE CREATIVE ID DATA: ', data)
 
         var creatives = []
         $.each(data, function (index) {
@@ -124,7 +126,7 @@ module.exports = function createExperimentPreviewer () {
         // set cookies and refresh
         _self.runPreviewCookies(creatives)
       }, function (e) {
-        _self.toolkit.c.error('ERROR: Failed to retreive all Creative IDs: ', e)
+        logger.error('ERROR: Failed to retreive all Creative IDs: ', e)
       })
     },
 
@@ -135,8 +137,8 @@ module.exports = function createExperimentPreviewer () {
       expires.setMinutes(expires.getMinutes() + 15)
       expires = expires.toUTCString()
 
-      this.toolkit.c.info('CURRENT DOMAIN: ', _self.toolkit.ss_domain)
-      this.toolkit.c.info('CURRENT CREATIVES: ', creatives)
+      logger.info('CURRENT DOMAIN: ', _self.toolkit.ss_domain)
+      logger.info('CURRENT CREATIVES: ', creatives)
 
       document.cookie = 'smartserve_preview=true; expires=' + expires + '; path=/; domain=' + _self.toolkit.ss_domain
       document.cookie = 'etcForceCreative=[' + creative_str + ']; expires=' + expires + '; path=/; domain=' + _self.toolkit.ss_domain
@@ -215,7 +217,7 @@ module.exports = function createExperimentPreviewer () {
         }
 
         _self.requestCreativeIds(exp)
-        _self.toolkit.c.info('CURRENT SELECTED EXPERIMENTS: ', exp)
+        logger.info('CURRENT SELECTED EXPERIMENTS: ', exp)
       })
 
       $activator.find('.cancel').click(function (e) {
