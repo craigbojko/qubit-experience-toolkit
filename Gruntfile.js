@@ -1,4 +1,4 @@
-var exec = require('child_process').exec
+// var exec = require('child_process').exec
 
 module.exports = function (grunt) {
   grunt.initConfig({
@@ -7,26 +7,36 @@ module.exports = function (grunt) {
       files: ['Gruntfile.js', 'src/**/*.js', 'test/**/*.js'],
       options: {
         globals: {
-          jQuery: true
+          jQuery: true,
+          require: true,
+          module: true
         }
       }
     },
     watch: {
       files: ['src/**/*.js', 'src/css/**/*.*'],
-      tasks: ['build']
+      tasks: ['build-dev']
     },
     less: {
-      content: {
+      dev: {
         options: {
           paths: ['src/css/']
         },
         files: {
-          'build/css/content.css': 'src/css/main.less'
+          'build/dev/css/content.css': 'src/css/main.less'
+        }
+      },
+      prod: {
+        options: {
+          paths: ['src/css/']
+        },
+        files: {
+          'build/prod/css/content.css': 'src/css/main.less'
         }
       }
     },
     browserify: {
-      dist: {
+      dev: {
         options: {
           browserifyOptions: {
             debug: true
@@ -38,119 +48,160 @@ module.exports = function (grunt) {
           }
         },
         files: {
-          'build/js/content/deliver_toolkit.min.js': [
+          'build/dev/js/content/deliver_toolkit.dev.js': [
             'src/js/content/app.js'
+          ],
+          'build/dev/js/popup/popup.min.js': [
+            'src/js/popup/popup.js'
           ]
         }
       },
-      popup: {
+      prod: {
         options: {
           browserifyOptions: {
             debug: false
           },
+          transform: ['node-underscorify'],
           aliasMappings: {
             cwd: 'src',
-            src: ['js/popup/*.js']
+            src: ['js/content/**/*.js']
           }
         },
         files: {
-          'build/js/popup/popup.min.js': [
+          'build/prod/js/content/deliver_toolkit.prod.js': [
+            'src/js/content/app.js'
+          ],
+          'build/prod/js/popup/popup.min.js': [
             'src/js/popup/popup.js'
           ]
         }
-      }
+      },
+      // popup: {
+      //   options: {
+      //     browserifyOptions: {
+      //       debug: false
+      //     },
+      //     aliasMappings: {
+      //       cwd: 'src',
+      //       src: ['js/popup/*.js']
+      //     }
+      //   },
+      //   files: {
+      //     'build/dev/js/popup/popup.min.js': [
+      //       'src/js/popup/popup.js'
+      //     ]
+      //   }
+      // }
     },
     copy: {
-      main: {
+      dev: {
         files: [{
+          src: 'src/manifest.dev.json',
+          dest: 'build/dev/manifest.json'
+        }, {
           expand: true,
           cwd: 'src/js/',
           src: 'library/*.js',
-          dest: 'build/js/'
+          dest: 'build/dev/js/'
         }, {
           expand: true,
           cwd: 'src/js/',
           src: 'background/*.js',
-          dest: 'build/js/'
+          dest: 'build/dev/js/'
         }, {
           expand: true,
           cwd: 'src/',
           src: 'manifest.json',
-          dest: 'build/'
+          dest: 'build/dev/'
         }, {
           expand: true,
           cwd: 'src/js/',
           src: 'content/deliver_toolkit_comms.js',
-          dest: 'build/js/'
+          dest: 'build/dev/js/'
         }, {
           expand: true,
           cwd: 'assets/',
           src: '**/*.*',
-          dest: 'build/assets/'
+          dest: 'build/dev/assets/'
         }, {
           expand: true,
           cwd: 'src/',
           src: 'templates/**/*.*',
-          dest: 'build/'
+          dest: 'build/dev/'
         }]
+      },
+      prod: {
+        files: [{
+          src: 'src/manifest.prod.json',
+          dest: 'build/prod/manifest.json'
+        }, {
+          expand: true,
+          cwd: 'src/js/',
+          src: 'library/*.js',
+          dest: 'build/prod/js/'
+        }, {
+          expand: true,
+          cwd: 'src/js/',
+          src: 'background/*.js',
+          dest: 'build/prod/js/'
+        }, {
+          expand: true,
+          cwd: 'src/',
+          src: 'manifest.json',
+          dest: 'build/prod/'
+        }, {
+          expand: true,
+          cwd: 'src/js/',
+          src: 'content/deliver_toolkit_comms.js',
+          dest: 'build/prod/js/'
+        }, {
+          expand: true,
+          cwd: 'assets/',
+          src: '**/*.*',
+          dest: 'build/prod/assets/'
+        }, {
+          expand: true,
+          cwd: 'src/',
+          src: 'templates/**/*.*',
+          dest: 'build/prod/'
+        }]
+      },
+      dist: {
+        files: [{
+          src: 'src/manifest.dist.json',
+          dest: 'dist/manifest.json'
+        }, {
+          expand: true,
+          cwd: 'build/prod/',
+          src: ['assets/**', 'css/**', 'templates/**', 'js/background/**', 'js/popup/**'],
+          dest: 'dist/'
+        }]
+      }
+    },
+    uglify: {
+      options: {
+        banner: '/*\n * Qubit Deliver Toolkit\n * Copyright <%= grunt.template.today("yyyy") %>, Qubit Products\n * http://www.qubit.com\n * Author: Craig Bojko - craig@qubit.com\n*/',
+        mangle: true,
+        sourceMap: false,
+        sourceMapName: 'dist/js/bundle.map'
+      },
+      dist: {
+        files: {
+          'dist/js/content/dt.min.js': ['build/prod/js/content/deliver_toolkit.prod.js'],
+          'dist/js/content/deliver_toolkit_comms.js': ['build/prod/js/content/deliver_toolkit_comms.js']
+        }
       }
     }
   })
 
+  grunt.loadNpmTasks('grunt-browserify')
   grunt.loadNpmTasks('grunt-contrib-jshint')
   grunt.loadNpmTasks('grunt-contrib-watch')
   grunt.loadNpmTasks('grunt-contrib-less')
-  grunt.loadNpmTasks('grunt-browserify')
   grunt.loadNpmTasks('grunt-contrib-copy')
-
-  grunt.registerTask('chrome-ext-reload', function () {
-    // Create server to communicate with Google Chrome reload extension
-    var done = this.async()
-    var server = require('http').createServer()
-    var io = require('socket.io')(server)
-    var connected = false
-    var sockets = {}
-    var socketId = 0
-    var closeServer = function () {
-      server.close(function () {
-        grunt.log.writeln('Server closed gracefully.')
-        done()
-      })
-      for (var id in sockets) {
-        sockets[id].destroy()
-      }
-      setTimeout(function () {
-        grunt.log.writeln('Server was not closed gracefully.')
-        done()
-      }, 2000)
-    }
-    server.on('connection', function (socket) {
-      sockets[socketId++] = socket
-    })
-    io.sockets.on('connection', function (socket) {
-      if (!connected) {
-        grunt.log.writeln('Reloader connected.')
-        socket.emit('file.change', {})
-        connected = true
-        setTimeout(function () {
-          closeServer()
-        }, 1000)
-      }
-    })
-    io.sockets.on('error', function (e) {
-      grunt.log.writeln('Server error: ' + e.description)
-      closeServer()
-    })
-    server.listen(8890)
-  })
-  grunt.registerTask('reload', 'reload Chrome on OS X', function () {
-    exec('osascript ' +
-      "-e 'tell application \"Google Chrome\" " +
-      "to tell the active tab of its first window' " +
-      "-e 'reload' " +
-      "-e 'end tell'")
-  })
+  grunt.loadNpmTasks('grunt-contrib-uglify')
 
   grunt.registerTask('default', ['watch'])
-  grunt.registerTask('build', ['less', 'browserify', 'copy'])
+  grunt.registerTask('build-dev', ['less:dev', 'browserify:dev', 'copy:dev']);
+  grunt.registerTask('build-prod', ['less:prod', 'browserify:prod', 'copy:prod', 'copy:dist', 'uglify']);
 }
