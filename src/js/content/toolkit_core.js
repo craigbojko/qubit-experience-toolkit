@@ -14,23 +14,24 @@ var api = {
   creativeResolver: require('./toolkit_creative_resolver')(),
   experimentPreviewer: require('./toolkit_experiment_previewer')()
 }
-var smartservePreview
+
 var initialised = false
+var toolbarReady = false;
 
 function DeliverToolkit (chrome) {
-  this.VERSION = '0.2.3'
+  this.VERSION = '1.0.0'
   this.CHROME_VERSION = '-'
 
   this.DEBUG = false || /qbDT_debug/.test(document.cookie)
   this.chromeInstance = chrome
-  this.toolbarReady = false
+  this.smartservePreview = false
   this.clientId = -1
   this.data = {}
   this.experiments = {}
 }
 
 DeliverToolkit.prototype.init = function () {
-  var _self = this
+  var self = this
 
   logger.logRaw('%c Qubit Deliver Toolkit', 'color: #D86D39; font-size: 16pt;')
   logger.log('running...')
@@ -44,7 +45,9 @@ DeliverToolkit.prototype.init = function () {
     api.eventRecorder.initPongListener()
   }
   this.chromeInstance.runtime.sendMessage({type: 'setupPongCapture'}, function (response) {
-    if (_self.DEBUG) logger.info(response)
+    if (self.DEBUG) {
+      logger.info(response)
+    }
   })
 
   // Start listening for UV updates
@@ -76,20 +79,22 @@ DeliverToolkit.prototype.onScriptLoad = function (event) {
   src = src.toLowerCase()
 
   if (src.indexOf('//dd6zx4ibq538k.cloudfront.net/smartserve') >= 0) {
-    this.clientId = src.match('dd6zx4ibq538k.cloudfront.net/smartserve-(\d+).js')[1]
+    this.clientId = src.match('dd6zx4ibq538k.cloudfront.net/smartserve-([0-9]{4}).js')[1]
     if (this.DEBUG) {
       logger.info('DELIVER LOADED: ', this.clientId)
     }
     if (isPreviewMode()) {
-      smartservePreview = true
+      this.smartservePreview = true
     } else {
       this.getDashboardManifest()
       initialised = true
     }
   }
 
-  if (/smartserve\.s3\.amazonaws\.com\/smartserve-\d+-preview/.test(src)) {
-    if (this.DEBUG) logger.log('DELIVER PREVIEW LOADED: ', this.clientId)
+  if (/smartserve\.s3\.amazonaws\.com\/smartserve-([0-9]{4})+-preview/.test(src)) {
+    if (this.DEBUG) {
+      logger.log('DELIVER PREVIEW LOADED: ', this.clientId)
+    }
     this.getDashboardManifest()
     initialised = true
   }
@@ -105,7 +110,9 @@ DeliverToolkit.prototype.getDashboardManifest = function () {
 
   function onSuccess (data) {
     var self = this
-    if (this.DEBUG) logger.info('DASHBOARD MANIFEST: ', data)
+    if (this.DEBUG) {
+      logger.info('DASHBOARD MANIFEST: ', data)
+    }
     this.data = data.reverse()
     $(function () {
       self.initToolbar()
@@ -120,6 +127,8 @@ DeliverToolkit.prototype.getDashboardManifest = function () {
 DeliverToolkit.prototype.initToolbar = function () {
   this.$el = this.buildToolbar()
   this.$el.appendTo('body')
+  toolbarReady = true;
+
   this.render()
 }
 
@@ -200,15 +209,15 @@ DeliverToolkit.prototype.resetLayers = function () {
 DeliverToolkit.prototype.indicateActiveExperiments = function () {
   var uv = this.uv || {}
 
-  if (uv && uv.qb && uv.qb.qb_etc_data && (!smartservePreview || smartservePreview === null)) {
+  if (uv && uv.qb && uv.qb.qb_etc_data && (!this.smartservePreview || this.smartservePreview === null)) {
     $.each(uv.qb.qb_etc_data, function (index) {
       var experimentId = this.e
       $('div[data-id="' + experimentId + '"]').find('.indicator').addClass('active')
     })
-  } else if (smartservePreview === true && this.previewCreatives) {
-    var that = this
+  } else if (this.smartservePreview === true && this.previewCreatives) {
+    var self = this
     $.each(this.previewCreatives, function (index) {
-      var experimentId = that.ss_opts[0].creatives[this].e_id
+      var experimentId = self.ss_opts[0].creatives[this].e_id
       $('div[data-id="' + experimentId + '"]').find('.indicator').addClass('active')
     })
   }
@@ -219,13 +228,16 @@ DeliverToolkit.prototype.openExperimentInfo = function (experimentId) {
     this.closeExperimentInfo()
   } else {
     api.creativeResolver.getExperimentAndCreative(experimentId, function (data) {
-      if (this.DEBUG) logger.info('EC DATA: ', data)
+      if (this.DEBUG) {
+        logger.info('EC DATA: ', data)
+      }
       this.renderExperimentInfo(data)
     }.bind(this))
 
-    this.$el.find('#DeliverToolbarWrapper').addClass('expanded')
-    this.$el.find('#DeliverToolbarInfo').find('.loadingBar').show().addClass('expanded')
     this.currentlyOpenExperiment = experimentId
+    this.$el.find('#DeliverToolbarWrapper').addClass('expanded')
+    this.$el.find('#DeliverToolbarInfo').addClass('expanded')
+    this.$el.find('#DeliverToolbarInfo .loadingBar').show()
     this.$el.find('.DT-Layer').removeClass('open')
     this.$el.find('.DT-Layer[data-id="' + experimentId + '"]').addClass('open')
   }
@@ -241,10 +253,12 @@ DeliverToolkit.prototype.closeExperimentInfo = function () {
 DeliverToolkit.prototype.renderExperimentInfo = function (data) {
   var $infoBar = this.$el.find('#DeliverToolbarInfo')
   var model = parseECData(data, {
-    isPreview: smartservePreview
+    isPreview: this.smartservePreview
   })
 
-  if (this.DEBUG) logger.log('EC MODEL: ', model)
+  if (this.DEBUG) {
+    logger.log('EC MODEL: ', model)
+  }
   $infoBar.find('.loadingBar').hide()
 
   var $html = $(templates.expInfo({
@@ -287,7 +301,9 @@ DeliverToolkit.prototype.injectUVConnectionScript = function () {
 
   window.addEventListener('message', function (event) {
     if (event.data.type === 'uv_initial_response' || event.data.type === 'ss_creative_response') {
-      if (this.DEBUG) logger.group('DELIVER TOOLKIT: COMMS_RESPONSE: ')
+      if (this.DEBUG) {
+        logger.group('DELIVER TOOLKIT: COMMS_RESPONSE: ')
+      }
       try {
         if (event.data.type === 'uv_initial_response') {
           this.uv = JSON.parse(event.data.data)
@@ -299,7 +315,9 @@ DeliverToolkit.prototype.injectUVConnectionScript = function () {
       } catch (e) {
         logger.error('CANNOT PARSE COMMS_INITIAL_RESPONSE: ', e)
       }
-      if (this.DEBUG) logger.groupEnd()
+      if (this.DEBUG) {
+        logger.groupEnd()
+      }
     }
   }.bind(this))
 
@@ -316,8 +334,12 @@ DeliverToolkit.prototype.requestUVUpdate = function () {
 DeliverToolkit.prototype.listenForUVUpdates = function () {
   window.addEventListener('message', function (event) {
     if (event.data.type === 'uv_update_response') {
-      if (this.DEBUG) logger.group('DELIVER TOOLKIT: UV_UPDATE_RESPONSE: ')
-      if (this.DEBUG) logger.info(event.data.data)
+      if (this.DEBUG) {
+        logger.group('DELIVER TOOLKIT: UV_UPDATE_RESPONSE: ')
+      }
+      if (this.DEBUG) {
+        logger.info(event.data.data)
+      }
       try {
         this.uv = JSON.parse(event.data.data)
         if (this.uv && this.uv.qb && this.uv.qb.qb_etc_data) {
@@ -326,23 +348,25 @@ DeliverToolkit.prototype.listenForUVUpdates = function () {
       } catch (e) {
         logger.error('CANNOT PARSE UV_UPDATE_RESPONSE: ', e)
       }
-      if (this.DEBUG) logger.groupEnd()
+      if (this.DEBUG) {
+        logger.groupEnd()
+      }
     }
   }.bind(this))
 }
 
-DeliverToolkit.prototype.initRender = function () {
-  if (this.toolbarReady && this.toolbarReady === true && this.ss_opts) {
-    this.render()
-  } else {
-    setTimeout(this.initRender.bind(this), 150)
-  }
-}
-
 DeliverToolkit.prototype.render = function () {
-  if (this.uv && this.uv.qb && this.uv.qb.qb_etc_data && (!smartservePreview || smartservePreview === null)) {
+  if (!toolbarReady) {
+    return
+  }
+
+  if (this.uv && this.uv.qb && this.uv.qb.qb_etc_data && this.ss_opts && (!this.smartservePreview || this.smartservePreview === null)) {
     this.indicateActiveExperiments()
-  } else if (smartservePreview === true) {
+    api.snippets.init(this)
+    api.creativeResolver.init(this)
+    api.eventRecorder.init(this)
+    api.experimentPreviewer.init(this)
+  } else if (this.smartservePreview === true && this.ss_opts) {
     var urlCid, cookieCid, cookieCids, etcCookie
     try {
       urlCid = document.URL.match(/etcForceCreative=([0-9].*)/)
@@ -368,16 +392,14 @@ DeliverToolkit.prototype.render = function () {
         })
       }
       this.indicateActiveExperiments()
+      api.snippets.init(this)
+      api.creativeResolver.init(this)
+      api.eventRecorder.init(this)
+      api.experimentPreviewer.init(this)
     } catch (e) {
       logger.error('Error obtaining Experiment preview ID: ', e)
     }
   }
-  // this.listenForUVUpdates()
-
-  api.snippets.init(this)
-  api.creativeResolver.init(this)
-  api.eventRecorder.init(this)
-  api.experimentPreviewer.init(this)
 }
 
 function isPreviewMode () {

@@ -3,7 +3,7 @@
 
   "name": "Qubit Deliver Toolkit",
   "description": "Debug toolbar for Qubit Deliver personalisation platform.",
-  "version": "0.2.3",
+  "version": "1.0.0",
 
   "permissions": [
     "webNavigation",
@@ -41,7 +41,7 @@
       "https://*.qubitproducts.com/*"
     ],
     "js": [
-      "js/content/deliver_toolkit.min.js"
+      "js/content/deliver_toolkit.prod.js"
     ],
     "css": [
       "css/content.css"
@@ -51,7 +51,11 @@
   "browser_action": {
     "default_icon": {
       "19": "assets/qubit_19.png",
-      "38": "assets/qubit_38.png"
+      "38": "assets/qubit_38.png",
+      "16": "assets/qubit_16.png",
+      "48": "assets/qubit_48.png",
+      "64": "assets/qubit_64.png",
+      "128": "assets/qubit_128.png"
     },
     "default_title": "Qubit Deliver Toolkit",
     "default_popup": "templates/popup/popup.html"
