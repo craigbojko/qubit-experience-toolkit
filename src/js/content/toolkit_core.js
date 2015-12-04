@@ -3,6 +3,7 @@ var parseECData = require('./parse_ec_data')
 var storage = require('../common/storage')
 var cookie = require('../common/cookie')
 var logger = require('../common/logger')()
+var fetchExperiments = require('../common/fetch_experiments')
 var templates = {
   main: require('../../templates/content/main.html'),
   dtLayer: require('../../templates/content/dtLayer.html'),
@@ -16,7 +17,7 @@ var api = {
 }
 
 var initialised = false
-var toolbarReady = false;
+var toolbarReady = false
 
 function DeliverToolkit (chrome) {
   this.VERSION = '1.0.0'
@@ -101,19 +102,13 @@ DeliverToolkit.prototype.onScriptLoad = function (event) {
 }
 
 DeliverToolkit.prototype.getDashboardManifest = function () {
-  $.ajax({
-    url: '//dashboard.qubitproducts.com/p/' + this.clientId + '/smart_serve/experiments/',
-    cache: false,
-    success: onSuccess.bind(this),
-    fail: onFailure.bind(this)
-  })
+  fetchExperiments(this.clientId).done(onSuccess).fail(onFailure)
 
   function onSuccess (data) {
     var self = this
     if (this.DEBUG) {
       logger.info('DASHBOARD MANIFEST: ', data)
     }
-    this.data = data.reverse()
     $(function () {
       self.initToolbar()
     })
@@ -127,7 +122,7 @@ DeliverToolkit.prototype.getDashboardManifest = function () {
 DeliverToolkit.prototype.initToolbar = function () {
   this.$el = this.buildToolbar()
   this.$el.appendTo('body')
-  toolbarReady = true;
+  toolbarReady = true
 
   this.render()
 }

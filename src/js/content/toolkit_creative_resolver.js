@@ -2,19 +2,19 @@ var $ = require('jquery')
 var logger = require('../common/logger')()
 
 module.exports = function createCreativeResolver () {
-  var CreativeResolver = {
-    initialised: false,
-    toolkit: null,
-    creativeData: {},
-    experimentData: {},
+  var initialised = false
+  var toolkit = null
+  var creativeData = {}
+  var experimentData = {}
 
+  var creativeResolver = {
     init: function (t) {
       if (!t) {
         return
       }
-      this.toolkit = t
-      this.initialised = true
-      return this;
+      toolkit = t
+      initialised = true
+      return this
     },
 
     getExperimentAndCreative: function (eId, callback) {
@@ -50,9 +50,9 @@ module.exports = function createCreativeResolver () {
     },
 
     getCreative: function (eId, callback) {
-      if (this.creativeData && this.creativeData[eId]) {
-        this.returnCreativeData(this.creativeData[eId], eId, callback)
-        return this.creativeData.eId
+      if (creativeData && creativeData[eId]) {
+        this.returnCreativeData(creativeData[eId], eId, callback)
+        return creativeData.eId
       } else {
         return this.requestCreativesByEperimentId(eId)
           .then(
@@ -69,7 +69,7 @@ module.exports = function createCreativeResolver () {
     requestCreativesByEperimentId: function (eId) {
       return new Promise(function (resolve, reject) {
         $.ajax({
-          url: 'https://dashboard.qubitproducts.com/p/' + this.toolkit.clientId + '/smart_serve/experiments/' + eId + '/recent_iterations/draft/variations?embed=recent_iterations'
+          url: 'https://dashboard.qubitproducts.com/p/' + toolkit.clientId + '/smart_serve/experiments/' + eId + '/recent_iterations/draft/variations?embed=recent_iterations'
         }).done(function (data) {
           resolve(data)
         }).fail(function (error) {
@@ -81,33 +81,33 @@ module.exports = function createCreativeResolver () {
     requestExperimentDataById: function (eId) {
       return new Promise(function (resolve, reject) {
         $.ajax({
-          url: 'https://dashboard.qubitproducts.com/p/' + this.toolkit.clientId + '/smart_serve/experiments/' + eId + '?embed=recent_iterations'
+          url: 'https://dashboard.qubitproducts.com/p/' + toolkit.clientId + '/smart_serve/experiments/' + eId + '?embed=recent_iterations'
         }).done(function (data) {
           resolve(data)
         }).fail(function (error) {
           reject(error)
         })
-      }.bind(this))
+      })
     },
 
     returnAllData: function (data, experimentId, callback) {
-      if (this.toolkit.DEBUG) {
+      if (toolkit.DEBUG) {
         logger.log('EXPERIMENT & CREATIVE RESP: ', data)
       }
-      // this.creativeData[experimentId] = data
+      // creativeData[experimentId] = data
       callback(data)
     },
 
     returnCreativeData: function (data, experimentId, callback) {
-      if (this.toolkit.DEBUG) {
+      if (toolkit.DEBUG) {
         logger.log('CREATIVE RESP: ', data)
       }
-      this.creativeData[experimentId] = data
+      creativeData[experimentId] = data
       callback(data)
     },
 
     returnExperimentData: function (data, experimentId, callback) {
-      if (this.toolkit.DEBUG) {
+      if (toolkit.DEBUG) {
         logger.log('EXPERIMENT RESP: ', data)
       }
       this.experimentData[experimentId] = data
@@ -118,5 +118,6 @@ module.exports = function createCreativeResolver () {
       logger.error('PROMISE FAIL: ', experimentId, error)
     }
   }
-  return CreativeResolver
+
+  return creativeResolver
 }
