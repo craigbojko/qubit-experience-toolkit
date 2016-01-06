@@ -21,9 +21,13 @@ module.exports = function createSnippets () {
         name: 'View Data Layers',
         code: require('../common/snippets/data_layers')
       },
+      // {
+      //   name: 'ContentEditable',
+      //   code: require('../common/snippets/content_editable')
+      // },
       {
-        name: 'ContentEditable',
-        code: require('../common/snippets/content_editable')
+        name: 'Test Generator',
+        code: require('../common/snippets/test_generator')
       }
     ],
 
