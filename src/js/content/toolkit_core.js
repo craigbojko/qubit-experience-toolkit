@@ -33,9 +33,6 @@ function DeliverToolkit (chrome) {
 DeliverToolkit.prototype.init = function () {
   var self = this
 
-  logger.logRaw('%c Qubit Deliver Toolkit', 'color: #D86D39; font-size: 16pt;')
-  logger.log('running...')
-
   if (initialised) {
     return
   }
@@ -125,6 +122,9 @@ DeliverToolkit.prototype.getDashboardManifest = function () {
 }
 
 DeliverToolkit.prototype.initToolbar = function () {
+  logger.logRaw('%c Qubit Deliver Toolkit', 'color: #D86D39; font-size: 16pt;')
+  logger.log('running...')
+  
   this.$el = this.buildToolbar()
   this.$el.appendTo('body')
   toolbarReady = true;

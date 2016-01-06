@@ -70,8 +70,6 @@ module.exports = function createSnippets () {
 
       var $metaCont = this.toolkit.$el.find('#DeliverToolbarMeta')
       $metaCont.append($html)
-      // $metaCont.animate({height : '30%'})
-      // this.toolkit.$el.find('#DeliverToolbarLayers').height('64%')
       return this.toolkit.$el.find('#DeliverToolbarMeta')
     }
   }
