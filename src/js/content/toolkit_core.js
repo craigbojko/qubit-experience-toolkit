@@ -75,8 +75,11 @@ DeliverToolkit.prototype.onScriptLoad = function (event) {
 
   src = src.toLowerCase()
 
-  if (src.indexOf('//dd6zx4ibq538k.cloudfront.net/smartserve') >= 0) {
-    this.clientId = src.match('dd6zx4ibq538k.cloudfront.net/smartserve-([0-9]{4}).js')[1]
+  if (src.indexOf('//dd6zx4ibq538k.cloudfront.net/smartserve') >= 0 || src.indexOf('smartserve.s3.amazonaws.com/smartserve') >= 0) {
+    var cdnId = /dd6zx4ibq538k\.cloudfront\.net\/smartserve-\d+/.test(src) && src.match('dd6zx4ibq538k.cloudfront.net/smartserve-([0-9]{4})+')[1]
+    var s3Id = /smartserve\.s3\.amazonaws\.com\/smartserve-\d+/.test(src) && src.match('smartserve.s3.amazonaws.com/smartserve-([0-9]{4})+')[1]
+
+    this.clientId = cdnId || s3Id
     if (this.DEBUG) {
       logger.info('DELIVER LOADED: ', this.clientId)
     }
