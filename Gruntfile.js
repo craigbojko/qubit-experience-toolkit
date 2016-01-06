@@ -110,11 +110,6 @@ module.exports = function (grunt) {
           dest: 'build/dev/js/'
         }, {
           expand: true,
-          cwd: 'src/',
-          src: 'manifest.json',
-          dest: 'build/dev/'
-        }, {
-          expand: true,
           cwd: 'src/js/',
           src: 'content/deliver_toolkit_comms.js',
           dest: 'build/dev/js/'
@@ -144,11 +139,6 @@ module.exports = function (grunt) {
           cwd: 'src/js/',
           src: 'background/*.js',
           dest: 'build/prod/js/'
-        }, {
-          expand: true,
-          cwd: 'src/',
-          src: 'manifest.json',
-          dest: 'build/prod/'
         }, {
           expand: true,
           cwd: 'src/js/',

@@ -1,6 +1,6 @@
 {
   "name": "deliver-toolkit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Debug toolbar for Qubit Deliver personalisation platform.",
   "main": "index.js",
   "scripts": {
