@@ -132,6 +132,11 @@ DeliverToolkit.prototype.initToolbar = function () {
   this.$el.appendTo('body')
   toolbarReady = true;
 
+  api.snippets.init(this)
+  api.creativeResolver.init(this)
+  api.eventRecorder.init(this)
+  api.experimentPreviewer.init(this)
+
   this.render()
 }
 
@@ -365,10 +370,6 @@ DeliverToolkit.prototype.render = function () {
 
   if (this.uv && this.uv.qb && this.uv.qb.qb_etc_data && this.ss_opts && (!this.smartservePreview || this.smartservePreview === null)) {
     this.indicateActiveExperiments()
-    api.snippets.init(this)
-    api.creativeResolver.init(this)
-    api.eventRecorder.init(this)
-    api.experimentPreviewer.init(this)
   } else if (this.smartservePreview === true && this.ss_opts) {
     var urlCid, cookieCid, cookieCids, etcCookie
     try {
@@ -395,10 +396,6 @@ DeliverToolkit.prototype.render = function () {
         })
       }
       this.indicateActiveExperiments()
-      api.snippets.init(this)
-      api.creativeResolver.init(this)
-      api.eventRecorder.init(this)
-      api.experimentPreviewer.init(this)
     } catch (e) {
       logger.error('Error obtaining Experiment preview ID: ', e)
     }
