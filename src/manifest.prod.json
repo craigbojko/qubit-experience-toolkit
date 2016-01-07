@@ -3,7 +3,7 @@
 
   "name": "Qubit Deliver Toolkit",
   "description": "Debug toolbar for Qubit Deliver personalisation platform.",
-  "version": "1.0.1",
+  "version": "1.0.2",
 
   "permissions": [
     "webNavigation",
