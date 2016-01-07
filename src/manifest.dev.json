@@ -38,7 +38,8 @@
     ],
     "exclude_matches": [
       "http://*.qubitproducts.com/*",
-      "https://*.qubitproducts.com/*"
+      "https://*.qubitproducts.com/*",
+      "https://*.passpack.com/*"
     ],
     "js": [
       "js/content/deliver_toolkit.dev.js"
