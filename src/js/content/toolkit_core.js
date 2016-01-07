@@ -1,4 +1,5 @@
 var $ = require('jquery')
+var qrCode = require('qrcode-npm')
 var parseECData = require('./parse_ec_data')
 var storage = require('../common/storage')
 var cookie = require('../common/cookie')
@@ -16,7 +17,7 @@ var api = {
 }
 
 var initialised = false
-var toolbarReady = false;
+var toolbarReady = false
 
 function DeliverToolkit (chrome) {
   this.VERSION = '1.0.0'
@@ -127,10 +128,10 @@ DeliverToolkit.prototype.getDashboardManifest = function () {
 DeliverToolkit.prototype.initToolbar = function () {
   logger.logRaw('%c Qubit Deliver Toolkit', 'color: #D86D39; font-size: 16pt;')
   logger.log('running...')
-  
+
   this.$el = this.buildToolbar()
   this.$el.appendTo('body')
-  toolbarReady = true;
+  toolbarReady = true
 
   api.snippets.init(this)
   api.creativeResolver.init(this)
@@ -286,7 +287,43 @@ DeliverToolkit.prototype.renderExperimentInfo = function (data) {
     CHROME_VERSION: this.CHROME_VERSION
   }))
 
+  var qr = this.buildQR(model)
+  if (qr) {
+    var $qrCode = qr.obj.createImgTag(qr.length)
+    $html.find('.qr_preview').append('<p>Preview link</p>').append($qrCode)
+  }
+
   $infoBar.find('.inject').html($html)
+}
+
+DeliverToolkit.prototype.buildQR = function (model, length) {
+  var previewHash = 'smartserve_preview=1&etcForceCreative=' + model.creative[1].master_id
+  var documentHash = document.location.hash
+  var previewUrl
+  if (documentHash !== '') {
+    previewUrl = document.URL + documentHash + '&' + previewHash
+  } else {
+    previewUrl = document.URL + '#' + previewHash
+  }
+
+  logger.info('QR Generated Preview Link:', previewUrl)
+
+  var qr
+  length = length || 4
+  if (length >= 10) {
+    return false
+  }
+  try {
+    qr = qrCode.qrcode(length, 'L')
+    qr.addData(previewUrl)
+    qr.make()
+    return {
+      obj: qr,
+      length: length
+    }
+  } catch (e) {
+    return this.buildQR(model, length + 1)
+  }
 }
 
 DeliverToolkit.prototype.injectUVConnectionScript = function () {
