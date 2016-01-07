@@ -75,7 +75,7 @@ module.exports = function (grunt) {
             'src/js/popup/popup.js'
           ]
         }
-      },
+      }
       // popup: {
       //   options: {
       //     browserifyOptions: {
@@ -110,11 +110,6 @@ module.exports = function (grunt) {
           dest: 'build/dev/js/'
         }, {
           expand: true,
-          cwd: 'src/',
-          src: 'manifest.json',
-          dest: 'build/dev/'
-        }, {
-          expand: true,
           cwd: 'src/js/',
           src: 'content/deliver_toolkit_comms.js',
           dest: 'build/dev/js/'
@@ -144,11 +139,6 @@ module.exports = function (grunt) {
           cwd: 'src/js/',
           src: 'background/*.js',
           dest: 'build/prod/js/'
-        }, {
-          expand: true,
-          cwd: 'src/',
-          src: 'manifest.json',
-          dest: 'build/prod/'
         }, {
           expand: true,
           cwd: 'src/js/',
@@ -202,6 +192,6 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify')
 
   grunt.registerTask('default', ['watch'])
-  grunt.registerTask('build-dev', ['less:dev', 'browserify:dev', 'copy:dev']);
-  grunt.registerTask('build-prod', ['less:prod', 'browserify:prod', 'copy:prod', 'copy:dist', 'uglify']);
+  grunt.registerTask('build-dev', ['less:dev', 'browserify:dev', 'copy:dev'])
+  grunt.registerTask('build-prod', ['less:prod', 'browserify:prod', 'copy:prod', 'copy:dist', 'uglify'])
 }

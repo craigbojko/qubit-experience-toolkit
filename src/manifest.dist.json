@@ -3,7 +3,7 @@
 
   "name": "Qubit Deliver Toolkit",
   "description": "Debug toolbar for Qubit Deliver personalisation platform.",
-  "version": "1.0.0",
+  "version": "1.0.2",
 
   "permissions": [
     "webNavigation",
@@ -38,7 +38,8 @@
     ],
     "exclude_matches": [
       "http://*.qubitproducts.com/*",
-      "https://*.qubitproducts.com/*"
+      "https://*.qubitproducts.com/*",
+      "https://*.passpack.com/*"
     ],
     "js": [
       "js/content/dt.min.js"

@@ -3,7 +3,7 @@
 
   "name": "Qubit Deliver Toolkit",
   "description": "Debug toolbar for Qubit Deliver personalisation platform.",
-  "version": "1.0.0",
+  "version": "1.0.2",
 
   "permissions": [
     "webNavigation",
@@ -38,7 +38,8 @@
     ],
     "exclude_matches": [
       "http://*.qubitproducts.com/*",
-      "https://*.qubitproducts.com/*"
+      "https://*.qubitproducts.com/*",
+      "https://*.passpack.com/*"
     ],
     "js": [
       "js/content/deliver_toolkit.dev.js"
@@ -57,7 +58,7 @@
       "64": "assets/qubit_64.png",
       "128": "assets/qubit_128.png"
     },
-    "default_title": "Qubit Deliver Toolkit",
+    "default_title": "Qubit Deliver Toolkit - DEVELOPMENT",
     "default_popup": "templates/popup/popup.html"
   }
 }

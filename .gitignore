@@ -1,4 +1,5 @@
 build/
 debug/
 dist/
+distributions/
 node_modules/

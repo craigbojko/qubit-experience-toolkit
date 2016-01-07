@@ -33,9 +33,6 @@ function DeliverToolkit (chrome) {
 DeliverToolkit.prototype.init = function () {
   var self = this
 
-  logger.logRaw('%c Qubit Deliver Toolkit', 'color: #D86D39; font-size: 16pt;')
-  logger.log('running...')
-
   if (initialised) {
     return
   }
@@ -78,8 +75,11 @@ DeliverToolkit.prototype.onScriptLoad = function (event) {
 
   src = src.toLowerCase()
 
-  if (src.indexOf('//dd6zx4ibq538k.cloudfront.net/smartserve') >= 0) {
-    this.clientId = src.match('dd6zx4ibq538k.cloudfront.net/smartserve-([0-9]{4}).js')[1]
+  if (src.indexOf('//dd6zx4ibq538k.cloudfront.net/smartserve') >= 0 || src.indexOf('smartserve.s3.amazonaws.com/smartserve') >= 0) {
+    var cdnId = /dd6zx4ibq538k\.cloudfront\.net\/smartserve-\d+/.test(src) && src.match('dd6zx4ibq538k.cloudfront.net/smartserve-([0-9]{4})+')[1]
+    var s3Id = /smartserve\.s3\.amazonaws\.com\/smartserve-\d+/.test(src) && src.match('smartserve.s3.amazonaws.com/smartserve-([0-9]{4})+')[1]
+
+    this.clientId = cdnId || s3Id
     if (this.DEBUG) {
       logger.info('DELIVER LOADED: ', this.clientId)
     }
@@ -125,9 +125,17 @@ DeliverToolkit.prototype.getDashboardManifest = function () {
 }
 
 DeliverToolkit.prototype.initToolbar = function () {
+  logger.logRaw('%c Qubit Deliver Toolkit', 'color: #D86D39; font-size: 16pt;')
+  logger.log('running...')
+  
   this.$el = this.buildToolbar()
   this.$el.appendTo('body')
   toolbarReady = true;
+
+  api.snippets.init(this)
+  api.creativeResolver.init(this)
+  api.eventRecorder.init(this)
+  api.experimentPreviewer.init(this)
 
   this.render()
 }
@@ -362,10 +370,6 @@ DeliverToolkit.prototype.render = function () {
 
   if (this.uv && this.uv.qb && this.uv.qb.qb_etc_data && this.ss_opts && (!this.smartservePreview || this.smartservePreview === null)) {
     this.indicateActiveExperiments()
-    api.snippets.init(this)
-    api.creativeResolver.init(this)
-    api.eventRecorder.init(this)
-    api.experimentPreviewer.init(this)
   } else if (this.smartservePreview === true && this.ss_opts) {
     var urlCid, cookieCid, cookieCids, etcCookie
     try {
@@ -392,10 +396,6 @@ DeliverToolkit.prototype.render = function () {
         })
       }
       this.indicateActiveExperiments()
-      api.snippets.init(this)
-      api.creativeResolver.init(this)
-      api.eventRecorder.init(this)
-      api.experimentPreviewer.init(this)
     } catch (e) {
       logger.error('Error obtaining Experiment preview ID: ', e)
     }

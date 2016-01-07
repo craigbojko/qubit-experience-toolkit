@@ -61,7 +61,7 @@ module.exports = function createEventRecorder () {
     },
 
     pongListener: function () {
-      deliverToolkit.chromeInstance.runtime.onMessage.addListener(
+      chrome.runtime.onMessage.addListener(
         function (request, sender, sendResponse) {
           if (request.type === 'pong_event') {
             var uv_event = false

@@ -21,9 +21,13 @@ module.exports = function createSnippets () {
         name: 'View Data Layers',
         code: require('../common/snippets/data_layers')
       },
+      // {
+      //   name: 'ContentEditable',
+      //   code: require('../common/snippets/content_editable')
+      // },
       {
-        name: 'ContentEditable',
-        code: require('../common/snippets/content_editable')
+        name: 'Test Generator',
+        code: require('../common/snippets/test_generator')
       }
     ],
 
@@ -66,8 +70,6 @@ module.exports = function createSnippets () {
 
       var $metaCont = this.toolkit.$el.find('#DeliverToolbarMeta')
       $metaCont.append($html)
-      // $metaCont.animate({height : '30%'})
-      // this.toolkit.$el.find('#DeliverToolbarLayers').height('64%')
       return this.toolkit.$el.find('#DeliverToolbarMeta')
     }
   }
