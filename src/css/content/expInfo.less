@@ -105,10 +105,12 @@
 	  	display: block;
 	  	bottom: 10px;
 	  	width: 100%;
+	  	margin-top: 20px;
 
 			.feedback{
 				position: relative;
 				display: inline-block;
+				top: 160px;
 				max-width: 30%;
 				font-size: 14px !important;
 				color: @qubit-orange !important;
@@ -118,10 +120,15 @@
 			.qr_preview{
 				position: relative;
 				display: inline-block;
-				right: 0;
-				width: 50%;
+				float: right;
+				right: 25px;
 
+				img{
+					max-width: 180px;
+					max-height: 180px;
+				}
 			}
+
 		} // END BOTTOM
 
 	} // END DeliverToolbarInfoContent
